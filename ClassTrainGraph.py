@@ -1,10 +1,11 @@
-string="AB50, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7"
+#string = AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7
+string = input("Please enter the coordinates of your map with the format 'AB1, BC3 ...':")
+
 
 class ClassTrain:
 	def __init__(self, string):
 		self.string = string
 		self.graph = {}
-		distance= int
 	def parser(self):
 		# Loop to detect "letter-letter-digit" patterns from the input and to insert roads in the graph map:
 		for i in range(len(self.string)):
@@ -23,7 +24,7 @@ class ClassTrain:
 					else:	# Stops appending further characters if downstream characters are non-digit.
 						break
 				full_distance=int(full_distance)
-				# City1 is departure and City2 is arrival:
+				# City1 is departure and City2 is arrival.
 				# If there is no road departing from City1 in the graph yet:
 				if coordinate[0] not in self.graph: 
 					self.graph.update({coordinate[0]:{coordinate[1]:full_distance}}) # adds road from City1 to City2
@@ -41,25 +42,41 @@ class ClassTrain:
 	#information about the routes. In particular, you will compute the distance along a
 	#certain route, the number of different routes between two towns, and the shortest route between two towns.
 	
-	def distance_route(self):
+
+	def print_graph(self):
+		print(self.graph)
+
+	def distance_between_two_towns(self):
 		depart = input("Please enter a departure point:")
 		if depart not in self.graph:
 			print("Sorry, there is not road departing from this location.")
-			depart = input("Please enter a departure point:")
-		arrivee = input("Please enter an arrival point:")
+			depart = input("Please enter another departure point:")
+		arrivee = input("Okay, now please enter an arrival point:")
 		if arrivee not in self.graph.get(depart):
 			print("Sorry, there is not road leading to this location.")
 			arrivee = input("Please enter another arrival point:")
 		total=0
 		if arrivee in self.graph.get(depart):
 			self.distance= self.graph.get(depart).get(arrivee)
-			return self.distance
+			print("The distance between %s and %s is %s" %(depart, arrivee, self.distance))
+	#def number_of_roads(self):
 
-			#for k in self.graph[depart]:
-				#if arrivee in self.graph[depart]:
-	
+
 
 objet = ClassTrain(string)
 objet.parser()
-objet.distance_route()
-print(objet.distance)
+
+
+question = input(">If you want to see the map generated from your input: enter 'map'."
+                "\n>If you want to know the distance of a path: type the path if the format 'ABCDE'."
+                "\n>If you want to know the number of possible roads from a town to another: enter the two towns with the format '!AC'. \n")
+
+
+if question == 'map':
+	objet.print_graph()
+elif question[0].isalpha():
+	objet.distance_between_two_towns()	
+elif question[0] == '!':
+	print("This function is still in progress.")
+else:
+	print("Sorry, this input does not match any requirements.")

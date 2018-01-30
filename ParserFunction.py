@@ -1,4 +1,4 @@
-#string="AB5, AC6, AB4, AB45, AB2, AE78, BC45, AG6700, AB1, AZ54, *$-these symbols do not prevent pattern search|'_\/ AB4 AB13 AB4654AB3ZE44 #even without commas or spaces# YT76, TB4, BU75, CD18"
+string="AB5, AC6, AB4, AB45, AB2, AE78, BC45, AG6700, AB1, AZ54, *$-these symbols do not prevent pattern search|'_\/ AB4 AB13 AB4654AB3ZE44 #even without commas or spaces# YT76, TB4, BU75, CD18"
 
 def parser(string):
 	graph={}
@@ -33,4 +33,4 @@ def parser(string):
 	# Roadmap completed:
 	return(graph)
 
-#print(parser(string))
+print(parser(string))
