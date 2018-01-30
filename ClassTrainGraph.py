@@ -1,8 +1,8 @@
-#string = AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7
-string = input("Please enter the coordinates of your map with the format 'AB1, BC3 ...':")
+#string = AB5, BC4, CD8, dc8, de6, AD5, BD100, CE2, EB3, EA7
 
+string = input("Please enter the coordinates of your map with the format 'AB1, BC3 ...':\n")
 
-class ClassTrain:
+class TrainRoads:
 	def __init__(self, string):
 		self.string = string
 		self.graph = {}
@@ -24,6 +24,7 @@ class ClassTrain:
 					else:	# Stops appending further characters if downstream characters are non-digit.
 						break
 				full_distance=int(full_distance)
+				coordinate=coordinate.upper()
 				# City1 is departure and City2 is arrival.
 				# If there is no road departing from City1 in the graph yet:
 				if coordinate[0] not in self.graph: 
@@ -37,46 +38,90 @@ class ClassTrain:
 				#print(graph.get(coordinate[0]).get(coordinate[1]))
 		# Roadmap completed:
 		return(self.graph)
-	
-	#The purpose of this problem is to help the railroad provide its customers with
-	#information about the routes. In particular, you will compute the distance along a
-	#certain route, the number of different routes between two towns, and the shortest route between two towns.
-	
 
 	def print_graph(self):
-		print(self.graph)
+		print("The roadmap generated from your coordinates is: \n",self.graph,"\n")
 
-	def distance_between_two_towns(self):
-		depart = input("Please enter a departure point:")
-		if depart not in self.graph:
-			print("Sorry, there is not road departing from this location.")
-			depart = input("Please enter another departure point:")
-		arrivee = input("Okay, now please enter an arrival point:")
-		if arrivee not in self.graph.get(depart):
-			print("Sorry, there is not road leading to this location.")
-			arrivee = input("Please enter another arrival point:")
+	def distance_between_towns(self):
+		path=input("Please enter your path (example: ABCDE) \n")
+		# Eliminating undesired characters from the input:
+		for i in path:
+			if i in " ?.!/;:0123456789":
+				path.replace(i,'')
+		path=path.upper()
 		total=0
-		if arrivee in self.graph.get(depart):
-			self.distance= self.graph.get(depart).get(arrivee)
-			print("The distance between %s and %s is %s" %(depart, arrivee, self.distance))
-	#def number_of_roads(self):
+		try:
+			for i in range(len(path)-1):
+				total += self.graph.get(path[i]).get(path[i+1])
+			print("The total distance for the path %s is %s.\n" %(path, total))
+		except KeyError:
+			print("NO SUCH ROUTE")
+		except TypeError:
+			print("NO SUCH ROUTE")
+	
+	
+	def number_of_roads(self):
+		
+		start=input("Please enter the departure city (example: A) \n")
+		while len(start)>1 or len(start)==0 or start.isalpha()==False:
+			print("Your input is invalid. Please enter only one letter.\n")
+			start=input("Please enter your starting city (example: A) \n")
+			
+		end=("Please enter your starting city (example: D) \n")
+		while len(end)>1 or len(end)==0 or end.isalpha()==False:
+			print("Your input is invalid. Please enter only one letter.\n")
+			start=input("Please enter your starting city (example: A) \n")
+			
+		max_stops=("Please enter the maximum number of stops from %s to %s:\n" %(start, end))
+		while len(max_stops)==0 or max_stops.isdigit()==False:
+			print("Your input is invalid. Please only enter digits.\n")
+			max_stops=("Please enter the maximum number of stops from %s to %s:\n" %(start, end))
+		
+		for k in max_stops:
+			
+		
+		
 
-
-
-objet = ClassTrain(string)
+objet = TrainRoads(string)
 objet.parser()
 
 
-question = input(">If you want to see the map generated from your input: enter 'map'."
-                "\n>If you want to know the distance of a path: type the path if the format 'ABCDE'."
-                "\n>If you want to know the number of possible roads from a town to another: enter the two towns with the format '!AC'. \n")
+#_________________________________________________________________________________________________________________
 
 
-if question == 'map':
-	objet.print_graph()
-elif question[0].isalpha():
-	objet.distance_between_two_towns()	
-elif question[0] == '!':
-	print("This function is still in progress.")
-else:
-	print("Sorry, this input does not match any requirements.")
+# This last part enables an interaction with the user through a Terminal or an IDE.
+# Each possible answer from the user will call a method of the TrainRoads class.
+# After each answer given by the called method, the code asks the User if he has another request.
+# If he does, the program resumes and another class can be called, if not, the program ends.
+
+while True:
+	question = input(">If you want to see the roadmap generated from your input: enter 'A'."
+                         "\n>If you want to know the distance of a path between several roads: enter 'B'."
+	                 "\n>If you want to know the number of possible roads from one town to another: enter 'C'."
+                         "\n>If you want to know the shortest road from one town to another: enter 'D'.\n")
+	
+	if question == 'A' or question=='a':
+		objet.print_graph()
+		
+	elif question == 'B' or question=='b':
+		objet.distance_between_towns()
+		
+	elif question == 'C' or question=='c':
+		print("This function is still in progress.")
+		
+	elif question == 'D' or question=='d':
+		objet.number_of_roads()
+		
+	else:
+		print("Sorry, this input does not match any requirements.\n")
+	
+	next_question=input("Do you have any other requests? (Yes/No)\n")
+	
+	if next_question=='Yes' or next_question=='yes':
+		pass
+	
+	elif next_question=='No' or next_question=='no':
+		print("Thank you for using TrainRoads!")
+		break
+	else:
+		print("Please answer with Yes or No.")
