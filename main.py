@@ -1,4 +1,4 @@
-#string =  AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7, AK8, IK27, OK78, HG8, FJ9, fr5 gv2 rf3 ze1
+#string =  AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7
 
 string = input("Welcome to TrainRoads! \n"
                "Please enter the coordinates of your map with the format 'AB1, BC3 ...': \n")
@@ -55,7 +55,7 @@ class TrainRoads:
 		try:
 			for i in range(len(path)-1):
 				total += self.graph.get(path[i]).get(path[i+1])
-			print("The total distance for the path %s is %s.\n" %(path, total))
+			print("The total distance for the path %s is %s kilometers.\n" %(path, total))
 		except KeyError:
 			print("NO SUCH ROUTE")
 		except TypeError:
@@ -73,40 +73,78 @@ class TrainRoads:
 				start_condition=True
 			else:
 				print("Your input is incorrect. Please enter only one letter.\n")
-	
 		while end_condition==False:
 			end=input("Please enter the arrival city (example: D) \n")
 			if len(end)==1 and end.isalpha():
 				end_condition=True
 			else:
 				print("Your input is incorrect. Please enter only one letter.\n")
-		
 		while max_condition==False:
 			max_stops=input("Please enter the maximum number of stops from %s to %s:\n" %(start.upper(), end.upper()))
-			if len(max_stops)!=0 and max_stops.isdigit():
+			if len(max_stops)!=0 and int(max_stops)<7 and max_stops.isdigit():
 				max_condition=True
 			else:
-				print("Your input is incorrect. Please only enter digits.\n")
+				print("Your input is incorrect. Please only enter a digit between 1 and 6.\n")
 		
 		start=start.upper()
 		end=end.upper()
 		max_stops=int(max_stops)
 		
-		if start not in self.graph:
-			print("There is no route departing from %s." %(start))
-		
-		liste=[]
-		way=''
-		self.graph.get(start).value()
-		
-		
-		
+		# This part creates a list of all possible routes according to the graph:
+		graphlist=[]
 		for i in self.graph:
-			for k in range(max_stops-1):
-				way=(self.graph.get(i[k]).get(i[k+1]))
-				if way[i]==start and way[k]==end:
-					liste.append(way)
-		print(liste)
+			for j in self.graph[i]:
+				graphlist.append(i+j)
+		# This part checks if the departure city exists on the map:
+		if start not in [i[0] for i in graphlist]:
+			print("There is no city %s on your graph." %(start))
+			
+		elif end not in [i[1] for i in graphlist]:
+			print("The city %s does not exist on your graph." %(end))
+		
+		else:
+		#This part creates all the possible ways between all the cities according to the existing roads.
+		#Sorry it's really ugly but that's the best I have so far.
+			roadlist=[]
+			for i in graphlist:
+				way=i
+				if i[1]==end:
+					if way not in roadlist:
+						roadlist.append(way)
+				for j in graphlist:
+					if j[0]==i[1]:
+						way1=way+j[1]
+						if j[1]==end:
+							if way1 not in roadlist:
+								roadlist.append(way1)			
+						for k in graphlist:
+							if k[0]==j[1]:
+								way2=way1+k[1]
+								if k[1]==end:
+									if way2 not in roadlist:
+										roadlist.append(way2)						
+								for l in graphlist:
+									if l[0]==k[1]:
+										way3=way2+l[1]
+										if l[1]==end:
+											if way3 not in roadlist:
+												roadlist.append(way3)								
+										for m in graphlist:
+											if m[0]==l[1]:
+												way4=way3+m[1]
+												if m[1]==end:
+													if way4 not in roadlist:
+														roadlist.append(way4)									
+												for n in graphlist:
+													if n[0]==m[1]:
+														way5=way4+n[1]
+														if n[1]==end:
+															if way5 not in roadlist:
+																roadlist.append(way5)
+			startlist=[i for i in roadlist if i[0]==start]
+			final_list=[i for i in startlist if len(i)<=max_stops]
+			print("There are %s roads going from %s to %s with a maximum of %s stops: %s." %(len(final_list), start, end, max_stops, final_list))
+
 
 #string = AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7
 # self.graph = {'A': {'B': 5, 'D': 5, 'E': 7}, 'B': {'C': 4}, 'C': {'D': 8, 'E': 2}, 'D': {'C': 8, 'E': 6}, 'E': {'B': 3}} 
