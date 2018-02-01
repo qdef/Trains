@@ -61,12 +61,12 @@ class TrainRoads:
 		except TypeError:
 			print("NO SUCH ROUTE")
 	
-	
 	def number_of_roads(self):
 		start_condition=False
 		end_condition=False
+		set_condition=False
 		max_condition=False
-		# Asking for inputs: departure city, arrival city and number of maximum stops: 
+		# Asking for inputs: departure city, arrival city and number of maximum stops:
 		while start_condition==False:
 			start=input("Please enter the departure city (example: A) \n")
 			if len(start)==1 and start.isalpha():
@@ -79,16 +79,32 @@ class TrainRoads:
 				end_condition=True
 			else:
 				print("Your input is incorrect. Please enter only one letter.\n")
-		while max_condition==False:
-			max_stops=input("Please enter the maximum number of stops from %s to %s:\n" %(start.upper(), end.upper()))
-			if len(max_stops)!=0 and int(max_stops)<7 and max_stops.isdigit():
-				max_condition=True
+		while set_condition==False:
+			fix_or_max=input("Do you want all the roads with a fixed number of stops (answer 'fix') or with a maximum number of stops (enter 'max')? \n")
+			if fix_or_max=='fix' or fix_or_max=='Fix' or fix_or_max=='FIX' or fix_or_max=='max' or fix_or_max=='Max' or fix_or_max=='MAX':
+				set_condition=True
 			else:
-				print("Your input is incorrect. Please only enter a digit between 1 and 6.\n")
-		
+				print("Your input is incorrect. Please answer with 'fix' or 'max'.\n")
+		fix_or_max.lower()
+		if fix_or_max=='max':
+			while max_condition==False:
+				max_stops=input("Please enter the maximum number of stops from %s to %s:\n" %(start.upper(), end.upper()))
+				if len(max_stops)!=0 and int(max_stops)<11 and max_stops.isdigit():
+					max_condition=True
+					max_stops=int(max_stops)
+				else:
+					print("Your input is incorrect. Please only enter a digit between 1 and 10.\n")
+		elif fix_or_max=='fix':
+			while max_condition==False:
+				fix_stops=input("Please enter the fixed number of stops from %s to %s:\n" %(start.upper(), end.upper()))
+				if len(fix_stops)!=0 and int(fix_stops)<11 and fix_stops.isdigit():
+					max_condition=True
+					fix_stops=int(fix_stops)
+				else:
+					print("Your input is incorrect. Please only enter a digit between 1 and 10.\n")	
 		start=start.upper()
 		end=end.upper()
-		max_stops=int(max_stops)
+		
 		
 		# This part creates a list of all possible routes according to the graph:
 		graphlist=[]
@@ -98,13 +114,12 @@ class TrainRoads:
 		# This part checks if the departure city exists on the map:
 		if start not in [i[0] for i in graphlist]:
 			print("There is no city %s on your graph." %(start))
-			
+		# This part checks if the arrival city exists on the map:
 		elif end not in [i[1] for i in graphlist]:
 			print("The city %s does not exist on your graph." %(end))
-		
 		else:
-		#This part creates all the possible ways between all the cities according to the existing roads.
-		#Sorry it's really ugly but that's the best I have so far.
+		# This part creates all the possible ways between all the cities according to the existing roads with the arrival of interest.
+		# I know it's really ugly but that's the best I have so far.
 			roadlist=[]
 			for i in graphlist:
 				way=i
@@ -141,9 +156,44 @@ class TrainRoads:
 														if n[1]==end:
 															if way5 not in roadlist:
 																roadlist.append(way5)
+														for o in graphlist:
+															if o[0]==n[1]:
+																way6=way5+o[1]
+																if o[1]==end:
+																	if way6 not in roadlist:
+																		roadlist.append(way6)
+																for p in graphlist:
+																	if p[0]==o[1]:
+																		way7=way6+p[1]
+																		if p[1]==end:
+																			if way7 not in roadlist:
+																				roadlist.append(way7)
+																		for q in graphlist:
+																			if q[0]==p[1]:
+																				way8=way7+q[1]
+																				if q[1]==end:
+																					if way8 not in roadlist:
+																						roadlist.append(way8)
+																				for r in graphlist:
+																					if r[0]==q[1]:
+																						way9=way8+r[1]
+																						if r[1]==end:
+																							if way9 not in roadlist:
+																								roadlist.append(way9)
+																						for s in graphlist:
+																							if s[0]==r[1]:
+																								way10=way9+s[1]
+																								if s[1]==end:
+																									if way10 not in roadlist:
+																										roadlist.append(way10)																							
+			# Creating a list with all the possible routes leaving from the departure city of interest:
 			startlist=[i for i in roadlist if i[0]==start]
-			final_list=[i for i in startlist if len(i)<=max_stops]
-			print("There are %s roads going from %s to %s with a maximum of %s stops: %s." %(len(final_list), start, end, max_stops, final_list))
+			if fix_or_max=='max':
+				final_list=[i for i in startlist if len(i)<=max_stops+1]
+				print("There are %s roads going from %s to %s with a maximum of %s stops: %s." %(len(final_list), start, end, max_stops, final_list))
+			elif fix_or_max=='fix':
+				final_list=[i for i in startlist if len(i)==fix_stops+1]
+				print("There are %s roads going from %s to %s with exactly %s stops: %s." %(len(final_list), start, end, fix_stops, final_list))
 
 
 #string = AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7
