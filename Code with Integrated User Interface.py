@@ -1,9 +1,5 @@
 #string =  AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7
 
-#Starting program with a string input to define the road map:
-string = input("Welcome to TrainRoads! \n"
-               "Please enter the coordinates of your map with the format 'AB1, BC3 ...': \n")
-
 class TrainRoads:
 	# Class initialization:
 	def __init__(self):
@@ -13,6 +9,7 @@ class TrainRoads:
 		self.fix_or_max = ''
 		self.max_stops = int
 		self.fix_stops = int
+		self.max_distance = int
 		self.roadlist = []
 		self.final_list = []
 	def parser(self, string):
@@ -55,7 +52,7 @@ class TrainRoads:
 		path=input("Please enter your path (example: ABCDE) \n")
 		# Eliminating undesired characters from the input:
 		for i in path:
-			if i in " ?.!/;:0123456789":
+			if i in " -?.!/;:0123456789":
 				path.replace(i,'')
 		path=path.upper()
 		#Adding the distances between each cities to the total:
@@ -69,16 +66,16 @@ class TrainRoads:
 		except TypeError:
 			print("NO SUCH ROUTE")
 	
-	def requested_inputs(self):
+	def start_and_end(self):
+		# This method asks the departure and arrival cities to the user:
 		start_condition=False
 		end_condition=False
-		set_condition=False
-		max_condition=False
 		# Asking for input: departure city
 		while start_condition==False:
 			self.start=input("Please enter the departure city (example: A) \n")
 			if len(self.start)==1 and self.start.isalpha():
 				start_condition=True
+				self.start=self.start.upper()
 			else:
 				print("Your input is incorrect. Please enter only one letter.\n")
 		# Asking for input: arrival city
@@ -86,9 +83,13 @@ class TrainRoads:
 			self.end=input("Please enter the arrival city (example: D) \n")
 			if len(self.end)==1 and self.end.isalpha():
 				end_condition=True
+				self.end=self.end.upper()
 			else:
 				print("Your input is incorrect. Please enter only one letter.\n")
-		# Asking whether the user wants a fixed or a maximum number of stops:
+	def fixed_or_maximum(self):
+		# This method asks whether the user wants a fixed or a maximum number of stops:
+		set_condition=False
+		max_condition=False		
 		while set_condition==False:
 			self.fix_or_max=input("Do you want all the roads with a fixed number of stops (answer 'fix') or with a maximum number of stops (enter 'max')? \n")
 			if self.fix_or_max=='fix' or self.fix_or_max=='Fix' or self.fix_or_max=='FIX' or self.fix_or_max=='max' or self.fix_or_max=='Max' or self.fix_or_max=='MAX':
@@ -113,10 +114,18 @@ class TrainRoads:
 					max_condition=True
 					self.fix_stops=int(self.fix_stops)
 				else:
-					print("Your input is incorrect. Please only enter a digit between 1 and 10.\n")	
-		self.start=self.start.upper()
-		self.end=self.end.upper()
-		
+					print("Your input is incorrect. Please only enter a digit between 1 and 10.\n")
+	
+	def restricted_distance(self):
+		restricted_condition=False
+		while restricted_condition==False:
+			self.max_distance=input("Please enter the maximum distance for the possible routes from %s to %s:\n" %(self.start.upper(), self.end.upper()))
+			if len(self.max_distance)!=0 and self.max_distance.isdigit():
+				restricted_condition=True
+				self.max_distance=int(self.max_distance)
+			else:
+				print("Your input is incorrect. Please only enter digits.\n")
+	
 	def roadlist_creation(self):	
 		# This part creates a list of all possible routes according to the graph:
 		graphlist=[]
@@ -125,14 +134,14 @@ class TrainRoads:
 				graphlist.append(i+j)
 		# This part checks if the departure city exists on the map:
 		if self.start not in [i[0] for i in graphlist]:
-			print("There is no city %s on your graph." %(self.start))
+			print("There is no road departing from %s on the graph." %(self.start))
 		# This part checks if the arrival city exists on the map:
 		elif self.end not in [i[1] for i in graphlist]:
-			print("The city %s does not exist on your graph." %(self.end))
+			print("There is no road leading to %s on the graph." %(self.end))
 		else:
 		# This part creates all the possible ways between all the cities according to the existing roads with the arrival of interest.
-		# I know it's really ugly but that's the best I have so far.
-			#roadlist=[]
+		# I know it's really ugly but it's way faster that with recursive methods :)
+		# However, the "for loop" cascade is limited to 11 stops.
 			for i in graphlist:
 				way=i
 				if i[1]==self.end:
@@ -201,54 +210,129 @@ class TrainRoads:
 		return(self.roadlist)
 	
 	def number_of_roads(self):
-		# Creating a list with all the possible routes leaving from the departure city of interest:
-		startlist=[i for i in self.roadlist if i[0]==self.start]
-		if self.fix_or_max=='max':
-			# If the user chose maximum, the method prints all the routes from 0 stops to maximum:
-			self.final_list=[i for i in startlist if len(i)<=self.max_stops+1]
-			print("There are %s roads going from %s to %s with a maximum of %s stops: %s." %(len(self.final_list), self.start, self.end, self.max_stops, self.final_list))
-		elif self.fix_or_max=='fix':
-			# If the user chose fixed, the method prints only the routes with a fixed number of stops:
-			self.final_list=[i for i in startlist if len(i)==self.fix_stops+2]
-			print("There are %s roads going from %s to %s with exactly %s stops: %s." %(len(self.final_list), self.start, self.end, self.fix_stops, self.final_list))
+		# This part checks again if the selected cities are accessible on the graph. If not, the function is interrupted.
+		graphlist=[]
+		for i in self.graph:
+			for j in self.graph[i]:
+				graphlist.append(i+j)
+		if self.start not in [i[0] for i in graphlist]:
+			pass
+		elif self.end not in [i[1] for i in graphlist]:
+			pass
+		else:
+			# Creating a list with all the possible routes leaving from the departure city of interest:
+			startlist=[i for i in self.roadlist if i[0]==self.start]
+			# Verifying again that all routes end with the right end city:
+			checklist=[i for i in startlist if i[-1]==self.end]	
+			if self.fix_or_max=='max':
+				# If the user chose maximum, the method prints all the routes from 0 stops to maximum:
+				self.final_list=[i for i in checklist if len(i)<=self.max_stops+1]
+				print("There are %s roads going from %s to %s with a maximum of %s stops: %s." %(len(self.final_list), self.start, self.end, self.max_stops, self.final_list))
+			elif self.fix_or_max=='fix':
+				# If the user chose fixed, the method prints only the routes with a fixed number of stops:
+				self.final_list=[i for i in checklist if len(i)==self.fix_stops+1]
+				print("There are %s roads going from %s to %s with exactly %s stops: %s." %(len(self.final_list), self.start, self.end, self.fix_stops, self.final_list))
 	
 	def shortest_route(self):
-		pass
+		# Keeping only the routes starting with the defined city:
+		startlist=[i for i in self.roadlist if i[0]==self.start]
+		# Verifying again that all routes end with the right end city:
+		checklist=[i for i in startlist if i[-1]==self.end]
+		distance_list=[]
+		# Calculating all the distances for the possible routes from start city to end city:
+		for i in checklist:
+			total=0
+			for j in range(len(i)-1):
+				# The distances are obtained from the original graph:
+				total += self.graph.get(i[j]).get(i[j+1])
+			# The empty list is filled the distances of all possible routes:	
+			distance_list.append(total)
+		# To determine the shortest distance of all routes:
+		shortest=min(distance_list)
+		# To identify all the routes with the minimal distance (in case there are several):
+		shortest_roads=[]
+		for i in distance_list:
+			if i==shortest:
+				shortest_roads.append(checklist[distance_list.index(i)])
+		# The final print with all the collected info on shortest routes:
+		print("The shortest distance between %s and %s is %s kilometers, corresponding to the route(s): %s.\n" %(self.start, self.end, shortest, shortest_roads))
+		return shortest
 	
 	def routes_with_specified_distance(self):
-		pass
+		##The number of different routes from C to C with a distance of less than 30.
+		##In the sample data, the trips are: CDC, CEBC, CEBCDC, CDCEBC, CDEBC, CEBCEBC, CEBCEBCEBC.
+		# Keeping only the routes starting with the defined city:
+		startlist=[i for i in self.roadlist if i[0]==self.start]
+		# Verifying again that all routes end with the right end city:
+		checklist=[i for i in startlist if i[-1]==self.end]
+		# Calculating all the distances for the possible routes from start city to end city:
+		distance_list=[]
+		for i in checklist:
+			total=0
+			for j in range(len(i)-1):
+				# The distances are obtained from the original graph:
+				total += self.graph.get(i[j]).get(i[j+1])
+			# The empty list is filled the distances of all possible routes:	
+			distance_list.append(total)
+			
+		restricted_list = [i for i in distance_list if i<self.max_distance]
+		routes_list = [i for i in checklist if distance_list[checklist.index(i)]<self.max_distance]
+		
+		restricted_possible_roads=len(restricted_list)
+		
+		for i in restricted_list:
+			print(i)
+			
+		#routes_list.append(checklist[distance_list.index(i)])		
+		
+		print("The number of possible routes from %s to %s with a maximum distance of %s is %s." 
+		        "\nThe possible routes are: %s."
+		        "\nThe respective lengths of these routes are: %s." %(self.start, self.end, self.max_distance, restricted_possible_roads, routes_list, restricted_list))
+		return restricted_possible_roads
+	
 
 #string = AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7
 
 objet = TrainRoads()
-objet.parser(string)
-
 
 #_________________________________________________________________________________________________________________
-
 
 # This last part enables an interaction with the user through a Terminal or an IDE.
 # Each possible answer from the user will call a method of the TrainRoads class.
 # After each answer given by the called method, the code asks the User if he has another request.
 # If he does, the program resumes and another class can be called, if not, the program ends.
 
+#Starting program with a string input to define the road map:
+
+print("Welcome to TrainRoads!")
+
+while True:
+	string = input("Please enter the coordinates of your map with the format 'AB1, BC3 ...': \n")
+	try:
+		objet.parser(string)
+		break
+	except:
+		print("The program could not identify any coordinates in your input.")
+
 while True:
 	question = input(">If you want to see the roadmap generated from your input: enter 'A'."
-                         "\n>If you want to know the distance of a path between several roads: enter 'B'."
-	                 "\n>If you want to know the number of possible roads from one town to another: enter 'C'."
-                         "\n>If you want to know the shortest road from one town to another: enter 'D'."
-	                 "\n>To quit this program, enter 'EXIT'.\n")
+		               "\n>If you want to know the distance of a route between several towns: enter 'B'."
+		               "\n>If you want to know the number of possible routes from one town to another: enter 'C'."
+		               "\n>If you want to know the shortest route from one town to another: enter 'D'."
+	                       "\n>If you want to know the number of possible routes from one town to another with a limited distance: enter 'E'."
+		               "\n>To quit this program, enter 'EXIT'.\n")		
 	
 	if question=='EXIT' or question=='exit' or question=='Exit':
 		print("Thank you for using TrainRoads!")
 		break
 	
-	while question not in "abcdABCD":
+	while question not in "abcdeABCDE":
 		print("INPUT ERROR: %s is not a valid input. Please enter A, B, C or D." %(question))
 		question=input(">If you want to see the roadmap generated from your input: enter 'A'."
-		               "\n>If you want to know the distance of a path between several roads: enter 'B'."
-		               "\n>If you want to know the number of possible roads from one town to another: enter 'C'."
-		               "\n>If you want to know the shortest road from one town to another: enter 'D'."
+		               "\n>If you want to know the distance of a route between several towns: enter 'B'."
+		               "\n>If you want to know the number of possible routes from one town to another: enter 'C'."
+		               "\n>If you want to know the shortest route from one town to another: enter 'D'."
+		               "\n>If you want to know the number of possible routes from one town to another with a limited distance: enter 'E'."
 		               "\n>To quit this program, enter 'EXIT'.\n")		
 	
 	if question=='A' or question=='a':
@@ -258,18 +342,35 @@ while True:
 		objet.distance_between_towns()
 		
 	elif question=='C' or question=='c':
-		objet.requested_inputs()
-		objet.roadlist_creation()
-		objet.number_of_roads()	
-		
+		try:
+			objet.start_and_end()
+			objet.fixed_or_maximum()
+			objet.roadlist_creation()
+			objet.number_of_roads()
+		except:
+			print("The program did not manage to calculate the possible routes using the given inputs.")
+
 	elif question=='D' or question=='d':
-		print("This function is still in progress.")
-	
-	next_question=input("Do you have any other requests? (Yes/No)\n")
+		try:
+			objet.start_and_end()
+			objet.roadlist_creation()
+			objet.shortest_route()
+		except:
+			print("The program did not manage to calculate the shortest route using the given inputs.")
+			
+	elif question=='E' or question=='e':
+		objet.start_and_end()
+		objet.restricted_distance()
+		objet.roadlist_creation()
+		objet.routes_with_specified_distance()
+		#except:
+		#	print("The program did not manage to calculate the number of routes with a restricted distance using the given inputs.")	
+		
+	next_question=input("Do you have any other requests? (Yes/No) \n")
 	
 	while next_question!='Yes' and next_question!='yes' and next_question!='No' and next_question!='no':
 		print("Please answer with Yes or No.\n")
-		next_question=input("Do you have any other requests? (Yes/No)\n")
+		next_question=input("Do you have any other requests? (Yes/No) \n")
 	
 	if next_question=='Yes' or next_question=='yes':
 		pass
