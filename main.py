@@ -225,7 +225,6 @@ objet = TrainRoads()
 
 # Calling function that returns the graph:
 objet.parser("AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7")
-
 # Question 1
 print(objet.distance_between_towns("ABC"))
 # Question 2

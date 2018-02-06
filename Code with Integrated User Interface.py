@@ -322,7 +322,7 @@ while True:
 		break
 	
 	while question not in "abcdeABCDE":
-		print("INPUT ERROR: %s is not a valid input. Please enter A, B, C or D." %(question))
+		print("INPUT ERROR: %s is not a valid input. Please enter A, B, C, D or E." %(question))
 		question=input(">If you want to see the roadmap generated from your input: enter 'A'."
 		               "\n>If you want to know the distance of a route between several towns: enter 'B'."
 		               "\n>If you want to know the number of possible routes from one town to another: enter 'C'."
