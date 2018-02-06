@@ -280,11 +280,6 @@ class TrainRoads:
 		
 		restricted_possible_roads=len(restricted_list)
 		
-		for i in restricted_list:
-			print(i)
-			
-		#routes_list.append(checklist[distance_list.index(i)])		
-		
 		print("The number of possible routes from %s to %s with a maximum distance of %s is %s." 
 		        "\nThe possible routes are: %s."
 		        "\nThe respective lengths of these routes are: %s." %(self.start, self.end, self.max_distance, restricted_possible_roads, routes_list, restricted_list))
