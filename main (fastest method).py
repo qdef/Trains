@@ -2,7 +2,7 @@ class TrainRoads:
 	# Class initialization:
 	def __init__(self):
 		self.graph = {}
-		self.roadlist= []
+
 	def parser(self, string):
 		# Loop to detect "letter-letter-digit" patterns from the input and to insert roads in the graph map:
 		for i in range(len(string)):
@@ -53,28 +53,84 @@ class TrainRoads:
 		except TypeError:
 			return "NO SUCH ROUTE"
 
-	def roadlist_creation(self):
-		# This function creates a list of all possible roads between towns according to the graph:
+	def roadlist_creation(self, start, end):
+		# This function creates a list of all possible routes according to the graph:
 		graphlist=[]
+		roadlist=[]
 		for i in self.graph:
 			for j in self.graph[i]:
-				graphlist.append(i+j)				
-		# This part creates all the possible ways between all the cities according to existing roads on the graph:
-		self.roadlist=graphlist
-		for i in self.roadlist:
-			# This limit avoids the list of possible routes to be infinite, it can be set to a higher or lower value if needed:
-			if len(i)==12:
-				break
-			else:
-				for j in graphlist:
-					if j[0]==i[-1]:
-						way = ''.join([i, j[1]])
-						if way not in self.roadlist:
-							self.roadlist.append(way)
-		return self.roadlist
+				graphlist.append(i+j)
+		# This part creates all the possible ways between all the cities according to the existing roads with the arrival of interest.
+		# I know it's really ugly for now, I will come back to that part later. It works well but the "for loop" cascade is limited to 11 stops.
+		for i in graphlist:
+			way=i
+			if i[1]==end:
+				if way not in roadlist:
+					roadlist.append(way)
+			for j in graphlist:
+				if j[0]==i[1]:
+					way1=way+j[1]
+					if j[1]==end:
+						if way1 not in roadlist:
+							roadlist.append(way1)			
+					for k in graphlist:
+						if k[0]==j[1]:
+							way2=way1+k[1]
+							if k[1]==end:
+								if way2 not in roadlist:
+									roadlist.append(way2)						
+							for l in graphlist:
+								if l[0]==k[1]:
+									way3=way2+l[1]
+									if l[1]==end:
+										if way3 not in roadlist:
+											roadlist.append(way3)								
+									for m in graphlist:
+										if m[0]==l[1]:
+											way4=way3+m[1]
+											if m[1]==end:
+												if way4 not in roadlist:
+													roadlist.append(way4)									
+											for n in graphlist:
+												if n[0]==m[1]:
+													way5=way4+n[1]
+													if n[1]==end:
+														if way5 not in roadlist:
+															roadlist.append(way5)
+													for o in graphlist:
+														if o[0]==n[1]:
+															way6=way5+o[1]
+															if o[1]==end:
+																if way6 not in roadlist:
+																	roadlist.append(way6)
+															for p in graphlist:
+																if p[0]==o[1]:
+																	way7=way6+p[1]
+																	if p[1]==end:
+																		if way7 not in roadlist:
+																			roadlist.append(way7)
+																	for q in graphlist:
+																		if q[0]==p[1]:
+																			way8=way7+q[1]
+																			if q[1]==end:
+																				if way8 not in roadlist:
+																					roadlist.append(way8)
+																			for r in graphlist:
+																				if r[0]==q[1]:
+																					way9=way8+r[1]
+																					if r[1]==end:
+																						if way9 not in roadlist:
+																							roadlist.append(way9)
+																					for s in graphlist:
+																						if s[0]==r[1]:
+																							way10=way9+s[1]
+																							if s[1]==end:
+																								if way10 not in roadlist:
+																									roadlist.append(way10)	
+		return roadlist
 	
 	def number_of_roads(self, start, end, fix_or_max, stops):
-		roadlist=self.roadlist
+		roadlist=self.roadlist_creation(start, end)
 		# This part checks if the selected cities are accessible on the graph. If not, the function returns NO SUCH ROUTE.
 		graphlist=[]
 		for i in self.graph:
@@ -102,7 +158,7 @@ class TrainRoads:
 				return "The program could not calculate the number of routes with this input."
 	
 	def shortest_route(self, start, end):
-		roadlist=self.roadlist
+		roadlist=self.roadlist_creation(start, end)
 		# This part checks if the selected cities are accessible on the graph. If not, the function returns NO SUCH ROUTE.
 		graphlist=[]
 		for i in self.graph:
@@ -134,7 +190,7 @@ class TrainRoads:
 				return "The program could not calculate the shortest route with this input."
 	
 	def routes_with_specified_distance(self, start, end, max_distance):
-		roadlist=self.roadlist
+		roadlist=self.roadlist_creation(start, end)
 		# This part checks if the selected cities are accessible on the graph. If not, the function returns NO SUCH ROUTE.
 		graphlist=[]
 		for i in self.graph:
@@ -169,8 +225,6 @@ objet = TrainRoads()
 
 # Calling function that returns the graph:
 objet.parser("AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7")
-# Calling function that creates all possibles roads from graph:
-objet.roadlist_creation()
 # Question 1
 print(objet.distance_between_towns("ABC"))
 # Question 2
