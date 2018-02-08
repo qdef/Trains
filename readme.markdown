@@ -1,6 +1,5 @@
-=================
+
 ---- README FILE ----
-=================
 
 This code contains several Python files:
 
